@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    {{template "head" .}}
+  </head>
+  <body class="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+    <header class="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+        <img src="/static/icons/icon.png" alt="rezervo" class="w-8 h-8 rounded-lg" />
+        <form method="post" action="/logout">
+          <button
+            type="submit"
+            class="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+          >
+            Logg ut
+          </button>
+        </form>
+      </div>
+    </header>
+
+    <main id="bookings-list" class="max-w-2xl mx-auto px-4 py-6">
+      {{if .Error}}
+      <div
+        class="mb-4 px-4 py-3 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 text-sm border border-red-500/20"
+      >
+        {{.Error}}
+      </div>
+      {{end}} {{if not .Days}}
+      <p class="text-zinc-500 dark:text-zinc-400 text-sm">Ingen kommende timer.</p>
+      {{end}} {{range .Days}}
+      <section class="mb-6">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-3">{{.Label}}</h2>
+        <ul class="space-y-2">
+          {{range .Sessions}}
+          <li
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 flex items-center gap-4"
+          >
+            <div class="text-sm font-mono text-zinc-500 dark:text-zinc-400 shrink-0 w-11 text-right">
+              {{formatTime .StartTime}}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium truncate">{{.ActivityName}}</p>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 truncate">
+                {{.Studio}}{{if .Instructors}} · {{index .Instructors 0}}{{end}}
+              </p>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full {{.StatusClass}}">{{.Status}}</span>
+              {{if eq .Status "Booket"}}
+              <a
+                href="/cancel-modal/{{.Chain}}/{{.ClassID}}?name={{urlquery .ActivityName}}"
+                up-layer="new modal"
+                up-size="medium"
+                class="text-xs text-zinc-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+              >
+                Avbestill
+              </a>
+              {{end}}
+            </div>
+          </li>
+          {{end}}
+        </ul>
+      </section>
+      {{end}}
+    </main>
+  </body>
+</html>
