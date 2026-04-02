@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-  cmd = "go build -o ./tmp/main ."
+  cmd = "pnpm tailwindcss -i ./static/css/input.css -o ./static/css/output.css && go build -o ./tmp/main ."
   bin = "./tmp/main"
   include_ext = ["go", "html", "png", "svg"]
   exclude_dir = ["tmp", "vendor"]

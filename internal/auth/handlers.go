@@ -23,6 +23,10 @@ type Handler struct {
 }
 
 func (h *Handler) RenderLogin(w http.ResponseWriter, r *http.Request) {
+	if _, ok := h.GetAccessToken(w, r); ok {
+		http.Redirect(w, r, "/bookings", http.StatusFound)
+		return
+	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := h.Tmpl.ExecuteTemplate(w, "login.html", nil); err != nil {
 		http.Error(w, "Intern feil", http.StatusInternalServerError)

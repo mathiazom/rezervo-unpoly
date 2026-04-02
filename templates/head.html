@@ -5,11 +5,23 @@
 <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png" />
 <script src="https://unpkg.com/unpoly@3/unpoly.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/unpoly@3/unpoly.min.css" />
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="/static/css/output.css" />
+<script>
+  up.on('up:layer:dismiss', (event) => {
+    if (up.network.isBusy()) event.preventDefault();
+  });
+</script>
 <style>
+  button.up-active .submit-spinner { display: inline; }
+  button.up-active ~ a[up-dismiss] { pointer-events: none; opacity: 0.4; }
+  up-modal-dismiss {
+    padding: 0.75rem;
+  }
   up-modal-box {
     border-radius: 1rem;
     box-shadow: none;
+    padding: 0.5rem;
+    max-width: 480px;
   }
   @media (prefers-color-scheme: dark) {
     up-modal-box {

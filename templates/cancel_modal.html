@@ -15,8 +15,9 @@
         <form method="post" action="/cancel/{{.Chain}}/{{.ClassID}}" up-layer="root">
           <button
             type="submit"
-            class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
+            <img src="/static/icons/icon.png" class="submit-spinner hidden animate-spin h-4 w-4 brightness-0 invert" alt="" />
             Ja, avbestill
           </button>
         </form>

@@ -119,7 +119,7 @@ func (h *Handler) buildBookingData(token string) BookingData {
 
 	var vms []SessionVM
 	for _, s := range sessions {
-		if s.Status != "BOOKED" && s.Status != "WAITLIST" {
+		if s.Status != "BOOKED" && s.Status != "WAITLIST" && s.Status != "PLANNED" {
 			continue
 		}
 		vms = append(vms, toSessionVM(s, h.Loc))
@@ -143,6 +143,9 @@ func toSessionVM(s api.UserSession, loc *time.Location) SessionVM {
 			status = "Venteliste"
 		}
 		statusClass = "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
+	case "PLANNED":
+		status = "Planlagt"
+		statusClass = "bg-blue-500/20 text-blue-600 dark:text-blue-400"
 	}
 
 	var instructors []string
