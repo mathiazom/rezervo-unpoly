@@ -55,6 +55,27 @@ type Instructor struct {
 	Name string `json:"name"`
 }
 
+type ClassDetail struct {
+	ID             string         `json:"id"`
+	StartTime      time.Time      `json:"startTime"`
+	EndTime        time.Time      `json:"endTime"`
+	Location       Location       `json:"location"`
+	Activity       DetailActivity `json:"activity"`
+	Instructors    []Instructor   `json:"instructors"`
+	IsCancelled    bool           `json:"isCancelled"`
+	CancelText     *string        `json:"cancelText"`
+	TotalSlots     *int           `json:"totalSlots"`
+	AvailableSlots *int           `json:"availableSlots"`
+}
+
+type DetailActivity struct {
+	ID                    string  `json:"id"`
+	Name                  string  `json:"name"`
+	Description           *string `json:"description"`
+	AdditionalInformation *string `json:"additionalInformation"`
+	Color                 *string `json:"color"`
+}
+
 func (c *Client) GetUserSessions(token string) ([]UserSession, error) {
 	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/user/sessions", nil)
 	if err != nil {
@@ -80,6 +101,33 @@ func (c *Client) GetUserSessions(token string) ([]UserSession, error) {
 		return nil, err
 	}
 	return sessions, nil
+}
+
+func (c *Client) GetClassDetail(token, chain, classID string) (*ClassDetail, error) {
+	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/classes/"+chain+"/"+classID, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		return nil, ErrUnauthorized
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API feil: %d", resp.StatusCode)
+	}
+
+	var detail ClassDetail
+	if err := json.NewDecoder(resp.Body).Decode(&detail); err != nil {
+		return nil, err
+	}
+	return &detail, nil
 }
 
 func (c *Client) CancelBooking(token, chain, classID string) error {

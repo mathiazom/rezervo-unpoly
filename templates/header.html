@@ -1,0 +1,17 @@
+{{define "header"}}
+<header class="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+  <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+    <a href="/bookings">
+      <img src="/static/icons/icon.png" alt="rezervo" class="w-8 h-8 rounded-lg" />
+    </a>
+    <form method="post" action="/logout">
+      <button
+        type="submit"
+        class="cursor-pointer text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+      >
+        Logg ut
+      </button>
+    </form>
+  </div>
+</header>
+{{end}}

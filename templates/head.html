@@ -7,13 +7,35 @@
 <link rel="stylesheet" href="https://unpkg.com/unpoly@3/unpoly.min.css" />
 <link rel="stylesheet" href="/static/css/output.css" />
 <script>
-  up.on('up:layer:dismiss', (event) => {
+  up.on("up:layer:dismiss", (event) => {
     if (up.network.isBusy()) event.preventDefault();
+  });
+  up.on("up:link:follow", "a[data-detail-link]", (event) => {
+    if (window.innerWidth < 640) {
+      event.renderOptions.layer = "root";
+      event.renderOptions.target = "main";
+      event.renderOptions.cache = true;
+    }
   });
 </script>
 <style>
-  button.up-active .submit-spinner { display: inline; }
-  button.up-active ~ a[up-dismiss] { pointer-events: none; opacity: 0.4; }
+  up-modal .back-link {
+    display: none;
+  }
+  up-modal main {
+    padding: 0;
+  }
+  up-modal main > div {
+    max-width: none;
+    margin: 0;
+  }
+  button.up-active .submit-spinner {
+    display: inline;
+  }
+  button.up-active ~ a[up-dismiss] {
+    pointer-events: none;
+    opacity: 0.4;
+  }
   up-modal-dismiss {
     padding: 0.75rem;
   }

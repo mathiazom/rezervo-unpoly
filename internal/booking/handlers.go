@@ -31,6 +31,22 @@ type SessionVM struct {
 	StatusClass  string
 }
 
+type ClassDetailVM struct {
+	Chain                 string
+	ClassID               string
+	ActivityName          string
+	Description           string
+	AdditionalInformation string
+	CancelText            string
+	StartTime             time.Time
+	EndTime               time.Time
+	DurationMinutes       int
+	Studio                string
+	Room                  string
+	Instructors           []string
+	IsCancelled           bool
+}
+
 type DayGroup struct {
 	Label    string
 	Sessions []SessionVM
@@ -56,6 +72,58 @@ func (h *Handler) HandleBookings(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := h.Tmpl.ExecuteTemplate(w, "bookings.html", data); err != nil {
+		http.Error(w, "Mal-feil", http.StatusInternalServerError)
+	}
+}
+
+func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
+	token, ok := h.Auth.GetAccessToken(w, r)
+	if !ok {
+		auth.RedirectToLogin(w, r)
+		return
+	}
+
+	chain := r.PathValue("chain")
+	classID := r.PathValue("classId")
+
+	detail, err := h.API.GetClassDetail(token, chain, classID)
+	if err != nil {
+		if errors.Is(err, api.ErrUnauthorized) {
+			auth.RedirectToLogin(w, r)
+			return
+		}
+		http.Error(w, "Kunne ikke hente klasseinformasjon", http.StatusBadGateway)
+		return
+	}
+
+	vm := ClassDetailVM{
+		Chain:           chain,
+		ClassID:         classID,
+		ActivityName:    detail.Activity.Name,
+		StartTime:       detail.StartTime.In(h.Loc),
+		EndTime:         detail.EndTime.In(h.Loc),
+		DurationMinutes: int(detail.EndTime.Sub(detail.StartTime).Minutes()),
+		Studio:          detail.Location.Studio,
+		IsCancelled:     detail.IsCancelled,
+	}
+	if detail.Activity.Description != nil {
+		vm.Description = *detail.Activity.Description
+	}
+	if detail.Activity.AdditionalInformation != nil {
+		vm.AdditionalInformation = *detail.Activity.AdditionalInformation
+	}
+	if detail.CancelText != nil {
+		vm.CancelText = *detail.CancelText
+	}
+	if detail.Location.Room != nil {
+		vm.Room = *detail.Location.Room
+	}
+	for _, i := range detail.Instructors {
+		vm.Instructors = append(vm.Instructors, i.Name)
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := h.Tmpl.ExecuteTemplate(w, "class_detail.html", vm); err != nil {
 		http.Error(w, "Mal-feil", http.StatusInternalServerError)
 	}
 }

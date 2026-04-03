@@ -29,13 +29,13 @@ Fill in `.env`:
 ## 🚀 Run locally
 
 ```bash
-go run .
+make run
 ```
 
 With hot reload ([air](https://github.com/air-verse/air) watches Go files and templates):
 
 ```bash
-go tool air
+make dev
 ```
 
 Or with Docker:
@@ -51,7 +51,7 @@ Visit http://localhost:3000.
 Go:
 
 ```bash
-go fmt ./...
+make fmt
 ```
 
 HTML templates ([prettier](https://prettier.io)):
