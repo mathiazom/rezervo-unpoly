@@ -10,6 +10,24 @@
   up.on("up:layer:dismiss", (event) => {
     if (up.network.isBusy()) event.preventDefault();
   });
+
+  const _cancelSubmitting = new WeakSet();
+  up.on("up:form:submit", "[data-cancel-form]", async (event) => {
+    if (_cancelSubmitting.has(event.target)) return;
+    event.preventDefault();
+    const form = event.target;
+    const card = document.getElementById("session-" + form.dataset.chain + "-" + form.dataset.classId);
+    if (card) {
+      await card.animate(
+        [{ opacity: 1, transform: "translateX(0)" }, { opacity: 0, transform: "translateX(-1.5rem)" }],
+        { duration: 200, easing: "ease-in", fill: "forwards" }
+      ).finished;
+      card.style.display = "none";
+    }
+    _cancelSubmitting.add(form);
+    up.submit(form);
+  });
+
   up.on("up:link:follow", "a[data-detail-link]", (event) => {
     if (window.innerWidth < 640) {
       event.renderOptions.layer = "root";
@@ -19,13 +37,10 @@
   });
 </script>
 <style>
-  up-modal .back-link {
-    display: none;
-  }
-  up-modal main {
+  up-modal main.detail-main {
     padding: 0;
   }
-  up-modal main > div {
+  up-modal main.detail-main > div {
     max-width: none;
     margin: 0;
   }
@@ -44,6 +59,7 @@
     box-shadow: none;
     padding: 0.5rem;
     max-width: 480px;
+    margin: 1rem;
   }
   @media (prefers-color-scheme: dark) {
     up-modal-box {

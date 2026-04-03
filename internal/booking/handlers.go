@@ -45,6 +45,7 @@ type ClassDetailVM struct {
 	Room                  string
 	Instructors           []string
 	IsCancelled           bool
+	IsBooked              bool
 }
 
 type DayGroup struct {
@@ -55,6 +56,27 @@ type DayGroup struct {
 type BookingData struct {
 	Days  []DayGroup
 	Error string
+}
+
+// genericUpTargets are selectors Unpoly uses for full-page navigation.
+// Requests with these targets should receive a full-page response so that
+// header and body styling are not lost on back/forward navigation.
+var genericUpTargets = map[string]struct{}{
+	"main": {}, "body": {}, "html": {}, "[up-main]": {}, ":has(main)": {},
+}
+
+func (h *Handler) render(w http.ResponseWriter, r *http.Request, full, fragment string, data any) {
+	target := r.Header.Get("X-Up-Target")
+	_, isGeneric := genericUpTargets[target]
+	name := full
+	if target != "" && !isGeneric {
+		name = fragment
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Vary", "X-Up-Target")
+	if err := h.Tmpl.ExecuteTemplate(w, name, data); err != nil {
+		http.Error(w, "Mal-feil", http.StatusInternalServerError)
+	}
 }
 
 func (h *Handler) HandleIndex(w http.ResponseWriter, r *http.Request) {
@@ -70,10 +92,7 @@ func (h *Handler) HandleBookings(w http.ResponseWriter, r *http.Request) {
 
 	data := h.buildBookingData(token)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.Tmpl.ExecuteTemplate(w, "bookings.html", data); err != nil {
-		http.Error(w, "Mal-feil", http.StatusInternalServerError)
-	}
+	h.render(w, r, "bookings.html", "bookings_main", data)
 }
 
 func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
@@ -96,6 +115,15 @@ func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sessions, _ := h.API.GetUserSessions(token)
+	isBooked := false
+	for _, s := range sessions {
+		if s.Chain == chain && s.ClassData.ID == classID && s.Status == "BOOKED" {
+			isBooked = true
+			break
+		}
+	}
+
 	vm := ClassDetailVM{
 		Chain:           chain,
 		ClassID:         classID,
@@ -105,6 +133,7 @@ func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
 		DurationMinutes: int(detail.EndTime.Sub(detail.StartTime).Minutes()),
 		Studio:          detail.Location.Studio,
 		IsCancelled:     detail.IsCancelled,
+		IsBooked:        isBooked,
 	}
 	if detail.Activity.Description != nil {
 		vm.Description = *detail.Activity.Description
@@ -122,10 +151,7 @@ func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
 		vm.Instructors = append(vm.Instructors, i.Name)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.Tmpl.ExecuteTemplate(w, "class_detail.html", vm); err != nil {
-		http.Error(w, "Mal-feil", http.StatusInternalServerError)
-	}
+	h.render(w, r, "class_detail.html", "class_detail_main", vm)
 }
 
 func (h *Handler) HandleCancelModal(w http.ResponseWriter, r *http.Request) {
@@ -138,10 +164,7 @@ func (h *Handler) HandleCancelModal(w http.ResponseWriter, r *http.Request) {
 		ClassID:      r.PathValue("classId"),
 		ActivityName: r.URL.Query().Get("name"),
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.Tmpl.ExecuteTemplate(w, "cancel_modal.html", data); err != nil {
-		http.Error(w, "Mal-feil", http.StatusInternalServerError)
-	}
+	h.render(w, r, "cancel_modal.html", "cancel_modal_main", data)
 }
 
 func (h *Handler) HandleCancel(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +177,6 @@ func (h *Handler) HandleCancel(w http.ResponseWriter, r *http.Request) {
 	chain := r.PathValue("chain")
 	classID := r.PathValue("classId")
 
-	var cancelErr string
 	if err := h.API.CancelBooking(token, chain, classID); err != nil {
 		if errors.Is(err, api.ErrUnauthorized) {
 			auth.ClearCookie(w, auth.CookieAccess, "/", h.Auth.Cfg.Secure)
@@ -162,18 +184,13 @@ func (h *Handler) HandleCancel(w http.ResponseWriter, r *http.Request) {
 			auth.RedirectToLogin(w, r)
 			return
 		}
-		cancelErr = "Kunne ikke avbestille timen. Prøv igjen."
+		data := h.buildBookingData(token)
+		data.Error = "Kunne ikke avbestille timen. Prøv igjen."
+		h.render(w, r, "bookings.html", "bookings_main", data)
+		return
 	}
 
-	data := h.buildBookingData(token)
-	if cancelErr != "" {
-		data.Error = cancelErr
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.Tmpl.ExecuteTemplate(w, "bookings.html", data); err != nil {
-		http.Error(w, "Mal-feil", http.StatusInternalServerError)
-	}
+	http.Redirect(w, r, "/bookings", http.StatusSeeOther)
 }
 
 func (h *Handler) buildBookingData(token string) BookingData {
