@@ -1,9 +1,16 @@
-{{define "bookings_main"}}
+{{define "session-card-inner"}}
+<div class="text-sm font-mono text-zinc-500 dark:text-zinc-400 shrink-0 w-11 text-right">{{formatTime .StartTime}}</div>
+<div class="flex-1 min-w-0">
+  <p class="font-medium truncate">{{.ActivityName}}</p>
+  <p class="text-sm text-zinc-500 dark:text-zinc-400 truncate">
+    {{.Studio}}{{if .Instructors}} · {{index .Instructors 0}}{{end}}
+  </p>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 {{.StatusClass}}">{{.Status}}</span>
+{{end}} {{define "bookings_main"}}
 <main id="bookings-list" class="max-w-2xl mx-auto px-4 py-6">
   {{if .Error}}
-  <div
-    class="mb-4 px-4 py-3 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 text-sm border border-red-500/20"
-  >
+  <div class="mb-4 px-4 py-3 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 text-sm border border-red-500/20">
     {{.Error}}
   </div>
   {{end}} {{if not .Days}}
@@ -12,18 +19,18 @@
   <section class="mb-6">
     <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-3">{{.Label}}</h2>
     <ul class="space-y-2">
-      {{range .Sessions}}
-      <li id="session-{{.Chain}}-{{.ClassID}}"
-        {{if eq .Status "Booket"}}
+      {{range .Sessions}} {{if eq .Status "Booket"}}
+      <li
+        id="session-{{.Chain}}-{{.ClassID}}"
         class="relative overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-        data-swipe-cancel data-chain="{{.Chain}}" data-class-id="{{.ClassID}}" data-activity-name="{{.ActivityName}}"
-        {{end}}
+        data-swipe-cancel
+        data-chain="{{.Chain}}"
+        data-class-id="{{.ClassID}}"
+        data-activity-name="{{.ActivityName}}"
       >
-        {{if eq .Status "Booket"}}
         <div class="absolute inset-0 flex items-center justify-end pr-5 bg-red-500" aria-hidden="true">
           {{template "icon-trash" "w-5 h-5 text-white"}}
         </div>
-        {{end}}
         <a
           href="/classes/{{.Chain}}/{{.ClassID}}"
           up-layer="new modal"
@@ -31,21 +38,26 @@
           up-size="medium"
           up-preload="reveal"
           data-detail-link
-          class="{{if eq .Status "Booket"}}relative bg-white dark:bg-zinc-900{{else}}bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors{{end}} flex items-center gap-4 px-4 py-3"
+          class="relative flex items-center gap-4 bg-white dark:bg-zinc-900 px-4 py-3"
         >
-          <div class="text-sm font-mono text-zinc-500 dark:text-zinc-400 shrink-0 w-11 text-right">
-            {{formatTime .StartTime}}
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-medium truncate">{{.ActivityName}}</p>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 truncate">
-              {{.Studio}}{{if .Instructors}} · {{index .Instructors 0}}{{end}}
-            </p>
-          </div>
-          <span class="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 {{.StatusClass}}">{{.Status}}</span>
+          {{template "session-card-inner" .}}
         </a>
       </li>
-      {{end}}
+      {{else}}
+      <li id="session-{{.Chain}}-{{.ClassID}}">
+        <a
+          href="/classes/{{.Chain}}/{{.ClassID}}"
+          up-layer="new modal"
+          up-history="true"
+          up-size="medium"
+          up-preload="reveal"
+          data-detail-link
+          class="flex items-center gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+        >
+          {{template "session-card-inner" .}}
+        </a>
+      </li>
+      {{end}} {{end}}
     </ul>
   </section>
   {{end}}
@@ -58,7 +70,6 @@
     {{template "head" .}}
   </head>
   <body class="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-    {{template "header" .}}
-    {{template "bookings_main" .}}
+    {{template "header" .}} {{template "bookings_main" .}}
   </body>
 </html>
