@@ -17,26 +17,26 @@
       <div
         class="flex gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 text-sm"
       >
-        <span class="shrink-0">⚠️</span>
+        {{template "icon-exclamation-triangle" "w-4 h-4 shrink-0 mt-0.5"}}
         <p>{{.CancelText}}</p>
       </div>
       {{end}}
 
       <dl class="space-y-2 text-sm">
         <div class="flex gap-3">
-          <dt class="text-zinc-400 dark:text-zinc-500 shrink-0 w-4 text-center">🕐</dt>
+          <dt>{{template "icon-clock" "w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500 mt-0.5"}}</dt>
           <dd class="text-zinc-700 dark:text-zinc-300">
             {{formatTime .StartTime}} – {{formatTime .EndTime}}
             <span class="text-zinc-400 dark:text-zinc-500">· {{.DurationMinutes}} min</span>
           </dd>
         </div>
         <div class="flex gap-3">
-          <dt class="text-zinc-400 dark:text-zinc-500 shrink-0 w-4 text-center">📍</dt>
+          <dt>{{template "icon-map-pin" "w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500 mt-0.5"}}</dt>
           <dd class="text-zinc-700 dark:text-zinc-300">{{.Studio}}{{if .Room}} · {{.Room}}{{end}}</dd>
         </div>
         {{if .Instructors}}
         <div class="flex gap-3">
-          <dt class="text-zinc-400 dark:text-zinc-500 shrink-0 w-4 text-center">👤</dt>
+          <dt>{{template "icon-user" "w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500 mt-0.5"}}</dt>
           <dd class="text-zinc-700 dark:text-zinc-300">
             {{range $i, $name := .Instructors}}{{if $i}}, {{end}}{{$name}}{{end}}
           </dd>
@@ -50,7 +50,7 @@
         <div
           class="flex gap-2 px-3 py-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 text-sm"
         >
-          <span class="shrink-0">ℹ️</span>
+          {{template "icon-information-circle" "w-4 h-4 shrink-0 mt-0.5"}}
           <p>{{.AdditionalInformation}}</p>
         </div>
         {{end}} {{if .Description}}
@@ -64,9 +64,9 @@
           up-layer="new modal"
           up-history="false"
           up-size="medium"
-          class="text-sm text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+          class="flex items-center gap-1.5 text-sm text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
         >
-          Avbestill time
+          {{template "icon-trash" "w-4 h-4"}} Avbestill time
         </a>
       </div>
       {{end}}
