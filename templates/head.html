@@ -4,6 +4,7 @@
 <title>rezervo</title>
 <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png" />
 <script src="https://unpkg.com/unpoly@3/unpoly.min.js"></script>
+<script src="/static/js/swipe-cancel.js" defer></script>
 <link rel="stylesheet" href="https://unpkg.com/unpoly@3/unpoly.min.css" />
 <link rel="stylesheet" href="/static/css/output.css" />
 <script>
@@ -19,8 +20,11 @@
     const card = document.getElementById("session-" + form.dataset.chain + "-" + form.dataset.classId);
     if (card) {
       await card.animate(
-        [{ opacity: 1, transform: "translateX(0)" }, { opacity: 0, transform: "translateX(-1.5rem)" }],
-        { duration: 200, easing: "ease-in", fill: "forwards" }
+        [
+          { opacity: 1, transform: "translateX(0)" },
+          { opacity: 0, transform: "translateX(-1.5rem)" },
+        ],
+        { duration: 200, easing: "ease-in", fill: "forwards" },
       ).finished;
       card.style.display = "none";
     }
