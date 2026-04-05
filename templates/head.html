@@ -41,6 +41,16 @@
   });
 </script>
 <style>
+  @media (max-width: 639px) {
+    body:has(main.detail-main) {
+      background-color: white;
+    }
+    @media (prefers-color-scheme: dark) {
+      body:has(main.detail-main) {
+        background-color: rgb(24 24 27); /* zinc-900 */
+      }
+    }
+  }
   up-modal main.detail-main {
     padding: 0;
   }
