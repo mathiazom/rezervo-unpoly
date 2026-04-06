@@ -29,6 +29,8 @@
 
     li._swipe.dragging = true;
     e.preventDefault();
+    const reveal = li.querySelector('[data-swipe-reveal]');
+    if (reveal) reveal.classList.remove('hidden');
     const card = li.querySelector('a');
     card.style.transition = 'none';
     card.style.transform = 'translateX(' + Math.max(dx, -THRESHOLD * 1.5) + 'px)';
@@ -52,6 +54,8 @@
     card.addEventListener('transitionend', function () {
       card.style.transition = '';
       card.style.transform = '';
+      const reveal = li.querySelector('[data-swipe-reveal]');
+      if (reveal) reveal.classList.add('hidden');
     }, { once: true });
 
     if (dx < -THRESHOLD) {
