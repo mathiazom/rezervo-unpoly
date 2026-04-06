@@ -46,17 +46,21 @@ type ClassDetailVM struct {
 	Instructors           []string
 	IsCancelled           bool
 	IsBooked              bool
+	IsWaitlisted          bool
+	WaitlistPosition      int
 	BookedSlots           int
 	TotalSlots            int
+	WaitingListCount      int
 	HasSlotData           bool
 }
 
 type ClassSlotsVM struct {
-	Chain       string
-	ClassID     string
-	BookedSlots int
-	TotalSlots  int
-	HasSlotData bool
+	Chain            string
+	ClassID          string
+	BookedSlots      int
+	TotalSlots       int
+	WaitingListCount int
+	HasSlotData      bool
 }
 
 type DayGroup struct {
@@ -128,23 +132,35 @@ func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
 
 	sessions, _ := h.API.GetUserSessions(token)
 	isBooked := false
+	isWaitlisted := false
+	var waitlistPosition int
 	for _, s := range sessions {
-		if s.Chain == chain && s.ClassData.ID == classID && s.Status == "BOOKED" {
+		if s.Chain != chain || s.ClassData.ID != classID {
+			continue
+		}
+		switch s.Status {
+		case "BOOKED":
 			isBooked = true
-			break
+		case "WAITLIST":
+			isWaitlisted = true
+			if s.Position != nil {
+				waitlistPosition = *s.Position
+			}
 		}
 	}
 
 	vm := ClassDetailVM{
-		Chain:           chain,
-		ClassID:         classID,
-		ActivityName:    detail.Activity.Name,
-		StartTime:       detail.StartTime.In(h.Loc),
-		EndTime:         detail.EndTime.In(h.Loc),
-		DurationMinutes: int(detail.EndTime.Sub(detail.StartTime).Minutes()),
-		Studio:          detail.Location.Studio,
-		IsCancelled:     detail.IsCancelled,
-		IsBooked:        isBooked,
+		Chain:            chain,
+		ClassID:          classID,
+		ActivityName:     detail.Activity.Name,
+		StartTime:        detail.StartTime.In(h.Loc),
+		EndTime:          detail.EndTime.In(h.Loc),
+		DurationMinutes:  int(detail.EndTime.Sub(detail.StartTime).Minutes()),
+		Studio:           detail.Location.Studio,
+		IsCancelled:      detail.IsCancelled,
+		IsBooked:         isBooked,
+		IsWaitlisted:     isWaitlisted,
+		WaitlistPosition: waitlistPosition,
 	}
 	if detail.Activity.Description != nil {
 		vm.Description = *detail.Activity.Description
@@ -165,6 +181,9 @@ func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
 		vm.BookedSlots = *detail.TotalSlots - *detail.AvailableSlots
 		vm.TotalSlots = *detail.TotalSlots
 		vm.HasSlotData = true
+	}
+	if detail.WaitingListCount != nil {
+		vm.WaitingListCount = *detail.WaitingListCount
 	}
 
 	h.render(w, r, "class_detail.html", "class_detail_main", vm)
@@ -197,7 +216,12 @@ func (h *Handler) HandleClassSlots(w http.ResponseWriter, r *http.Request) {
 		vm.BookedSlots = booked
 		vm.TotalSlots = *detail.TotalSlots
 		vm.HasSlotData = true
-		etag = fmt.Sprintf(`"%d/%d"`, booked, *detail.TotalSlots)
+		waitlist := 0
+		if detail.WaitingListCount != nil {
+			waitlist = *detail.WaitingListCount
+			vm.WaitingListCount = waitlist
+		}
+		etag = fmt.Sprintf(`"%d/%d/%d"`, booked, *detail.TotalSlots, waitlist)
 	}
 
 	if etag != "" {

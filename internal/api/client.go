@@ -56,16 +56,17 @@ type Instructor struct {
 }
 
 type ClassDetail struct {
-	ID             string         `json:"id"`
-	StartTime      time.Time      `json:"startTime"`
-	EndTime        time.Time      `json:"endTime"`
-	Location       Location       `json:"location"`
-	Activity       DetailActivity `json:"activity"`
-	Instructors    []Instructor   `json:"instructors"`
-	IsCancelled    bool           `json:"isCancelled"`
-	CancelText     *string        `json:"cancelText"`
-	TotalSlots     *int           `json:"totalSlots"`
-	AvailableSlots *int           `json:"availableSlots"`
+	ID               string         `json:"id"`
+	StartTime        time.Time      `json:"startTime"`
+	EndTime          time.Time      `json:"endTime"`
+	Location         Location       `json:"location"`
+	Activity         DetailActivity `json:"activity"`
+	Instructors      []Instructor   `json:"instructors"`
+	IsCancelled      bool           `json:"isCancelled"`
+	CancelText       *string        `json:"cancelText"`
+	TotalSlots       *int           `json:"totalSlots"`
+	AvailableSlots   *int           `json:"availableSlots"`
+	WaitingListCount *int           `json:"waitingListCount"`
 }
 
 type DetailActivity struct {
