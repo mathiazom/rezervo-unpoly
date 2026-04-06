@@ -94,7 +94,7 @@ func (c *Client) GetUserSessions(token string) ([]UserSession, error) {
 		return nil, ErrUnauthorized
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API feil: %d", resp.StatusCode)
+		return nil, fmt.Errorf("API error: %d", resp.StatusCode)
 	}
 
 	var sessions []UserSession
@@ -121,7 +121,7 @@ func (c *Client) GetClassDetail(token, chain, classID string) (*ClassDetail, err
 		return nil, ErrUnauthorized
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API feil: %d", resp.StatusCode)
+		return nil, fmt.Errorf("API error: %d", resp.StatusCode)
 	}
 
 	var detail ClassDetail
@@ -153,7 +153,7 @@ func (c *Client) CancelBooking(token, chain, classID string) error {
 		return ErrUnauthorized
 	}
 	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("avbestilling feilet: %d", resp.StatusCode)
+		return fmt.Errorf("cancellation failed: %d", resp.StatusCode)
 	}
 	return nil
 }

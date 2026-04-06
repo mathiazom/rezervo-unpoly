@@ -91,7 +91,7 @@ func (h *Handler) render(w http.ResponseWriter, r *http.Request, full, fragment 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Vary", "X-Up-Target")
 	if err := h.Tmpl.ExecuteTemplate(w, name, data); err != nil {
-		http.Error(w, "Mal-feil", http.StatusInternalServerError)
+		http.Error(w, "Template error", http.StatusInternalServerError)
 	}
 }
 
@@ -127,7 +127,7 @@ func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
 			auth.RedirectToLogin(w, r)
 			return
 		}
-		http.Error(w, "Kunne ikke hente klasseinformasjon", http.StatusBadGateway)
+		http.Error(w, "Could not fetch class information", http.StatusBadGateway)
 		return
 	}
 
@@ -206,7 +206,7 @@ func (h *Handler) HandleClassSlots(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-		http.Error(w, "Kunne ikke hente klasseinformasjon", http.StatusBadGateway)
+		http.Error(w, "Could not fetch class information", http.StatusBadGateway)
 		return
 	}
 
@@ -235,7 +235,7 @@ func (h *Handler) HandleClassSlots(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := h.Tmpl.ExecuteTemplate(w, "class_slots", vm); err != nil {
-		http.Error(w, "Mal-feil", http.StatusInternalServerError)
+		http.Error(w, "Template error", http.StatusInternalServerError)
 	}
 }
 

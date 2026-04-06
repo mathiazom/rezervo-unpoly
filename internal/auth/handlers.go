@@ -29,25 +29,25 @@ func (h *Handler) RenderLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := h.Tmpl.ExecuteTemplate(w, "login.html", nil); err != nil {
-		http.Error(w, "Intern feil", http.StatusInternalServerError)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
 	}
 }
 
 func (h *Handler) HandleAuthStart(w http.ResponseWriter, r *http.Request) {
 	verifier, err := GenerateRandom(32)
 	if err != nil {
-		http.Error(w, "Intern feil", http.StatusInternalServerError)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
 	state, err := GenerateRandom(16)
 	if err != nil {
-		http.Error(w, "Intern feil", http.StatusInternalServerError)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
 
 	signed, err := SignPKCE(verifier, state, h.Cfg.SecretKey)
 	if err != nil {
-		http.Error(w, "Intern feil", http.StatusInternalServerError)
+		http.Error(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
 
@@ -99,7 +99,7 @@ func (h *Handler) HandleCallback(w http.ResponseWriter, r *http.Request) {
 
 	accessToken, refreshToken, err := h.exchangeCode(code, verifier)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Autentisering feilet: %v", err), http.StatusBadGateway)
+		http.Error(w, fmt.Sprintf("Authentication failed: %v", err), http.StatusBadGateway)
 		return
 	}
 
@@ -136,7 +136,7 @@ func (h *Handler) exchangeCode(code, verifier string) (accessToken, refreshToken
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return "", "", fmt.Errorf("FusionAuth svarte med %d", resp.StatusCode)
+		return "", "", fmt.Errorf("FusionAuth responded with %d", resp.StatusCode)
 	}
 
 	var result struct {
@@ -147,7 +147,7 @@ func (h *Handler) exchangeCode(code, verifier string) (accessToken, refreshToken
 		return "", "", err
 	}
 	if result.AccessToken == "" || result.RefreshToken == "" {
-		return "", "", fmt.Errorf("manglende tokens i svar fra FusionAuth")
+		return "", "", fmt.Errorf("missing tokens in FusionAuth response")
 	}
 	return result.AccessToken, result.RefreshToken, nil
 }
@@ -165,7 +165,7 @@ func (h *Handler) doRefresh(refreshToken string) (accessToken, newRefresh string
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return "", "", fmt.Errorf("refresh feilet med %d", resp.StatusCode)
+		return "", "", fmt.Errorf("token refresh failed with %d", resp.StatusCode)
 	}
 
 	var result struct {
@@ -176,7 +176,7 @@ func (h *Handler) doRefresh(refreshToken string) (accessToken, newRefresh string
 		return "", "", err
 	}
 	if result.AccessToken == "" {
-		return "", "", fmt.Errorf("manglende access_token i refresh-svar")
+		return "", "", fmt.Errorf("missing access_token in refresh response")
 	}
 	return result.AccessToken, result.RefreshToken, nil
 }
