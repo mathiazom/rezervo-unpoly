@@ -46,6 +46,17 @@ type ClassDetailVM struct {
 	Instructors           []string
 	IsCancelled           bool
 	IsBooked              bool
+	BookedSlots           int
+	TotalSlots            int
+	HasSlotData           bool
+}
+
+type ClassSlotsVM struct {
+	Chain       string
+	ClassID     string
+	BookedSlots int
+	TotalSlots  int
+	HasSlotData bool
 }
 
 type DayGroup struct {
@@ -150,8 +161,57 @@ func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
 	for _, i := range detail.Instructors {
 		vm.Instructors = append(vm.Instructors, i.Name)
 	}
+	if detail.TotalSlots != nil && detail.AvailableSlots != nil {
+		vm.BookedSlots = *detail.TotalSlots - *detail.AvailableSlots
+		vm.TotalSlots = *detail.TotalSlots
+		vm.HasSlotData = true
+	}
 
 	h.render(w, r, "class_detail.html", "class_detail_main", vm)
+}
+
+func (h *Handler) HandleClassSlots(w http.ResponseWriter, r *http.Request) {
+	token, ok := h.Auth.GetAccessToken(w, r)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	chain := r.PathValue("chain")
+	classID := r.PathValue("classId")
+
+	detail, err := h.API.GetClassDetail(token, chain, classID)
+	if err != nil {
+		if errors.Is(err, api.ErrUnauthorized) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		http.Error(w, "Kunne ikke hente klasseinformasjon", http.StatusBadGateway)
+		return
+	}
+
+	vm := ClassSlotsVM{Chain: chain, ClassID: classID}
+	var etag string
+	if detail.TotalSlots != nil && detail.AvailableSlots != nil {
+		booked := *detail.TotalSlots - *detail.AvailableSlots
+		vm.BookedSlots = booked
+		vm.TotalSlots = *detail.TotalSlots
+		vm.HasSlotData = true
+		etag = fmt.Sprintf(`"%d/%d"`, booked, *detail.TotalSlots)
+	}
+
+	if etag != "" {
+		w.Header().Set("ETag", etag)
+		if r.Header.Get("If-None-Match") == etag {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := h.Tmpl.ExecuteTemplate(w, "class_slots", vm); err != nil {
+		http.Error(w, "Mal-feil", http.StatusInternalServerError)
+	}
 }
 
 func (h *Handler) HandleCancelModal(w http.ResponseWriter, r *http.Request) {

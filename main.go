@@ -67,6 +67,7 @@ func main() {
 	mux.HandleFunc("GET /{$}", bookingHandler.HandleIndex)
 	mux.HandleFunc("GET /bookings", bookingHandler.HandleBookings)
 	mux.HandleFunc("GET /classes/{chain}/{classId}", bookingHandler.HandleClassDetail)
+	mux.HandleFunc("GET /classes/{chain}/{classId}/slots", bookingHandler.HandleClassSlots)
 	mux.HandleFunc("GET /cancel-modal/{chain}/{classId}", bookingHandler.HandleCancelModal)
 	mux.HandleFunc("POST /cancel/{chain}/{classId}", bookingHandler.HandleCancel)
 
