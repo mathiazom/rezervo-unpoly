@@ -29,6 +29,7 @@ type SessionVM struct {
 	Instructors  []string
 	Status       string
 	StatusClass  string
+	CanCancel    bool
 }
 
 type ClassDetailVM struct {
@@ -301,10 +302,12 @@ func toSessionVM(s api.UserSession, loc *time.Location) SessionVM {
 	status := "Ukjent"
 	statusClass := "bg-zinc-500/20 text-zinc-400"
 
+	canCancel := false
 	switch s.Status {
 	case "BOOKED":
 		status = "Booket"
 		statusClass = "bg-green-500/20 text-green-600 dark:text-green-400"
+		canCancel = true
 	case "WAITLIST":
 		if s.Position != nil {
 			status = fmt.Sprintf("Venteliste #%d", *s.Position)
@@ -312,6 +315,7 @@ func toSessionVM(s api.UserSession, loc *time.Location) SessionVM {
 			status = "Venteliste"
 		}
 		statusClass = "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
+		canCancel = true
 	case "PLANNED":
 		status = "Planlagt"
 		statusClass = "bg-blue-500/20 text-blue-600 dark:text-blue-400"
@@ -332,6 +336,7 @@ func toSessionVM(s api.UserSession, loc *time.Location) SessionVM {
 		Instructors:  instructors,
 		Status:       status,
 		StatusClass:  statusClass,
+		CanCancel:    canCancel,
 	}
 }
 

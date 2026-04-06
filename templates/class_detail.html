@@ -80,7 +80,7 @@
         <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{{.Description}}</p>
         {{end}}
       </div>
-      {{end}} {{if .IsBooked}}
+      {{end}} {{if or .IsBooked .IsWaitlisted}}
       <div class="border-t border-zinc-100 dark:border-zinc-800 pt-4">
         <a
           href="/cancel-modal/{{.Chain}}/{{.ClassID}}?name={{urlquery .ActivityName}}"

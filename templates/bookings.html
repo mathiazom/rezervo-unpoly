@@ -19,7 +19,7 @@
   <section class="mb-6">
     <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-3">{{.Label}}</h2>
     <ul class="space-y-2">
-      {{range .Sessions}} {{if eq .Status "Booket"}}
+      {{range .Sessions}} {{if .CanCancel}}
       <li
         id="session-{{.Chain}}-{{.ClassID}}"
         class="relative overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
