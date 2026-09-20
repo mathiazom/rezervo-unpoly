@@ -361,7 +361,7 @@ func groupByDay(sessions []SessionVM, loc *time.Location) []DayGroup {
 }
 
 var norWeekdays = [7]string{
-	"Søndag", "Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag",
+	"søndag", "mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag",
 }
 
 var norMonths = [13]string{
@@ -371,4 +371,26 @@ var norMonths = [13]string{
 
 func formatDay(t time.Time) string {
 	return fmt.Sprintf("%s %d. %s", norWeekdays[t.Weekday()], t.Day(), norMonths[t.Month()])
+}
+
+// FormatClassDate formats t relative to now (in loc), using "i dag"/"i morgen"
+// for today/tomorrow and falling back to the full weekday/day/month label.
+func FormatClassDate(t time.Time, loc *time.Location) string {
+	t = t.In(loc)
+	now := time.Now().In(loc)
+
+	switch {
+	case sameDate(t, now):
+		return "i dag"
+	case sameDate(t, now.AddDate(0, 0, 1)):
+		return "i morgen"
+	default:
+		return formatDay(t)
+	}
+}
+
+func sameDate(a, b time.Time) bool {
+	y1, m1, d1 := a.Date()
+	y2, m2, d2 := b.Date()
+	return y1 == y2 && m1 == m2 && d1 == d2
 }

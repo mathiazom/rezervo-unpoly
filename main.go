@@ -36,6 +36,9 @@ func main() {
 		"formatTime": func(t time.Time) string {
 			return t.In(loc).Format("15:04")
 		},
+		"formatDate": func(t time.Time) string {
+			return booking.FormatClassDate(t, loc)
+		},
 		"urlquery": url.QueryEscape,
 	}
 

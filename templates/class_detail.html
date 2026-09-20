@@ -54,6 +54,10 @@
           </dd>
         </div>
         <div class="flex gap-3">
+          <dt>{{template "icon-calendar" "w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500 mt-0.5"}}</dt>
+          <dd class="text-zinc-700 dark:text-zinc-300">{{formatDate .StartTime}}</dd>
+        </div>
+        <div class="flex gap-3">
           <dt>{{template "icon-map-pin" "w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500 mt-0.5"}}</dt>
           <dd class="text-zinc-700 dark:text-zinc-300">{{.Studio}}{{if .Room}} · {{.Room}}{{end}}</dd>
         </div>
