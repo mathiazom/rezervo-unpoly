@@ -63,6 +63,7 @@ type ClassDetail struct {
 	Activity         DetailActivity `json:"activity"`
 	Instructors      []Instructor   `json:"instructors"`
 	IsCancelled      bool           `json:"isCancelled"`
+	IsBookable       bool           `json:"isBookable"`
 	CancelText       *string        `json:"cancelText"`
 	TotalSlots       *int           `json:"totalSlots"`
 	AvailableSlots   *int           `json:"availableSlots"`

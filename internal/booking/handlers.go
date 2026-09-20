@@ -53,6 +53,7 @@ type ClassDetailVM struct {
 	TotalSlots            int
 	WaitingListCount      int
 	HasSlotData           bool
+	IsBookable            bool
 }
 
 type ClassSlotsVM struct {
@@ -62,6 +63,7 @@ type ClassSlotsVM struct {
 	TotalSlots       int
 	WaitingListCount int
 	HasSlotData      bool
+	IsBookable       bool
 }
 
 type DayGroup struct {
@@ -182,6 +184,7 @@ func (h *Handler) HandleClassDetail(w http.ResponseWriter, r *http.Request) {
 		vm.BookedSlots = *detail.TotalSlots - *detail.AvailableSlots
 		vm.TotalSlots = *detail.TotalSlots
 		vm.HasSlotData = true
+		vm.IsBookable = detail.IsBookable
 	}
 	if detail.WaitingListCount != nil {
 		vm.WaitingListCount = *detail.WaitingListCount
@@ -217,12 +220,13 @@ func (h *Handler) HandleClassSlots(w http.ResponseWriter, r *http.Request) {
 		vm.BookedSlots = booked
 		vm.TotalSlots = *detail.TotalSlots
 		vm.HasSlotData = true
+		vm.IsBookable = detail.IsBookable
 		waitlist := 0
 		if detail.WaitingListCount != nil {
 			waitlist = *detail.WaitingListCount
 			vm.WaitingListCount = waitlist
 		}
-		etag = fmt.Sprintf(`"%d/%d/%d"`, booked, *detail.TotalSlots, waitlist)
+		etag = fmt.Sprintf(`"%d/%d/%d/%t"`, booked, *detail.TotalSlots, waitlist, detail.IsBookable)
 	}
 
 	if etag != "" {
