@@ -1,7 +1,7 @@
 {
   "devDependencies": {
-    "@tailwindcss/cli": "^4.2.2",
-    "prettier": "^3.8.1",
+    "@tailwindcss/cli": "^4.3.3",
+    "prettier": "^3.9.8",
     "tailwindcss": "^4"
   }
 }
