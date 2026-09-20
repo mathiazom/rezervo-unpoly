@@ -43,3 +43,6 @@ updates:
     groups:
       minor-updates:
         update-types: ["minor", "patch"]
+
+    ignore:
+      - dependency-name: "node"
